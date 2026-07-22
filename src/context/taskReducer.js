@@ -16,7 +16,9 @@ export function taskReducer(state, action) {
       );
 
     case ACTIONS.DELETE_TASK:
-      return state.filter((task) => task.id !== action.payload);
+      return state.filter(
+        (task) => task.id !== action.payload
+      );
 
     case ACTIONS.MOVE_TASK:
       return state.map((task) =>
@@ -32,5 +34,3 @@ export function taskReducer(state, action) {
       return state;
   }
 }
-
-

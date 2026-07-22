@@ -1,39 +1,64 @@
+import { useState } from "react";
+
+import Header from "./components/layout/Header";
+import Container from "./components/layout/Container";
+import Button from "./components/ui/Button";
+
+import DashboardStats from "./features/tasks/DashboardStats";
+import TaskToolbar from "./features/tasks/TaskToolbar";
+import TaskBoard from "./features/tasks/TaskBoard";
+import TaskModal from "./features/tasks/TaskModal";
+
 import { useTasks } from "./context/TaskContext";
 
 function App() {
-  const { tasks } = useTasks();
+  const { openCreateModal } = useTasks();
+
+  const [search, setSearch] = useState("");
+  const [priority, setPriority] = useState("all");
+  const [sort, setSort] = useState("newest");
 
   return (
-    <main className="min-h-screen bg-slate-100 p-10">
-      <div className="mx-auto max-w-4xl">
-        <h1 className="mb-8 text-4xl font-bold text-slate-800">
-          ZenTask
-        </h1>
+    <div className="min-h-screen bg-slate-100">
+      <Header />
 
-        <div className="rounded-xl bg-white p-6 shadow">
-          <h2 className="mb-4 text-xl font-semibold">
-            Current Tasks
-          </h2>
+      <TaskModal />
 
-          {tasks.map((task) => (
-            <div
-              key={task.id}
-              className="mb-4 rounded-lg border p-4"
-            >
-              <h3 className="font-bold">{task.title}</h3>
+      <Container>
+        <div className="my-8 flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold">
+              ZenTask Dashboard
+            </h2>
 
-              <p>{task.description}</p>
+            <p className="text-slate-500">
+              Organize your workflow efficiently
+            </p>
+          </div>
 
-              <div className="mt-2 flex gap-4 text-sm">
-                <span>Status: {task.status}</span>
-
-                <span>Priority: {task.priority}</span>
-              </div>
-            </div>
-          ))}
+          <Button onClick={openCreateModal}>
+            + Add Task
+          </Button>
         </div>
-      </div>
-    </main>
+
+        <DashboardStats />
+
+        <TaskToolbar
+          search={search}
+          setSearch={setSearch}
+          priority={priority}
+          setPriority={setPriority}
+          sort={sort}
+          setSort={setSort}
+        />
+
+        <TaskBoard
+          search={search}
+          priority={priority}
+          sort={sort}
+        />
+      </Container>
+    </div>
   );
 }
 

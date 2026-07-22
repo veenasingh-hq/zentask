@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer } from "react";
+import { createContext, useContext, useEffect, useReducer, useState } from "react";
 import { taskReducer } from "./taskReducer";
 import { ACTIONS, TASK_PRIORITY, TASK_STATUS } from "../utils/constants";
 import { generateId } from "../utils/generateId";
@@ -17,7 +17,7 @@ const initialTasks = [
   {
     id: generateId(),
     title: "Build ZenTask UI",
-    description: "Create Kanban board",
+    description: "Create Kanban Board",
     status: TASK_STATUS.IN_PROGRESS,
     priority: TASK_PRIORITY.MEDIUM,
     createdAt: Date.now(),
@@ -30,19 +30,40 @@ export function TaskProvider({ children }) {
     [],
     () => {
       const stored = localStorage.getItem("zentask");
-
       return stored ? JSON.parse(stored) : initialTasks;
     }
   );
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
 
   useEffect(() => {
     localStorage.setItem("zentask", JSON.stringify(tasks));
   }, [tasks]);
 
+  const openCreateModal = () => {
+    setEditingTask(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (task) => {
+    setEditingTask(task);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setEditingTask(null);
+    setIsModalOpen(false);
+  };
+
   const addTask = (task) => {
     dispatch({
       type: ACTIONS.ADD_TASK,
-      payload: task,
+      payload: {
+        ...task,
+        id: generateId(),
+        createdAt: Date.now(),
+      },
     });
   };
 
@@ -53,31 +74,17 @@ export function TaskProvider({ children }) {
     });
   };
 
-  const deleteTask = (id) => {
-    dispatch({
-      type: ACTIONS.DELETE_TASK,
-      payload: id,
-    });
-  };
-
-  const moveTask = (id, status) => {
-    dispatch({
-      type: ACTIONS.MOVE_TASK,
-      payload: {
-        id,
-        status,
-      },
-    });
-  };
-
   return (
     <TaskContext.Provider
       value={{
         tasks,
         addTask,
         updateTask,
-        deleteTask,
-        moveTask,
+        isModalOpen,
+        editingTask,
+        openCreateModal,
+        openEditModal,
+        closeModal,
       }}
     >
       {children}
@@ -85,6 +92,4 @@ export function TaskProvider({ children }) {
   );
 }
 
-export function useTasks() {
-  return useContext(TaskContext);
-}
+export const useTasks = () => useContext(TaskContext);
